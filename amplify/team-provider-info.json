@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-pdftransformation-dev-152039-authRole",
+      "UnauthRoleArn": "arn:aws:iam::200239770344:role/amplify-pdftransformation-dev-152039-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::200239770344:role/amplify-pdftransformation-dev-152039-authRole",
+      "Region": "eu-central-1",
+      "DeploymentBucketName": "amplify-pdftransformation-dev-152039-deployment",
+      "UnauthRoleName": "amplify-pdftransformation-dev-152039-unauthRole",
+      "StackName": "amplify-pdftransformation-dev-152039",
+      "StackId": "arn:aws:cloudformation:eu-central-1:200239770344:stack/amplify-pdftransformation-dev-152039/fc391c30-5eca-11ee-adc8-0691139f4398",
+      "AmplifyAppId": "dang4y9u3yx4g"
+    }
+  }
+}
