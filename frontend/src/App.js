@@ -1,14 +1,18 @@
-import logo from './logo.svg';
+import React from 'react';
+import FileUploader from './components/FileUploader';
 import './App.css';
 
 function App() {
+
+  const handleFilesSelected = (files) => {
+    console.log(files);
+};
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Hello world from new branch, new stuff
-        </p>
+        <h1>PDF Merger</h1>
+        <FileUploader onFilesSelected={handleFilesSelected} />
       </header>
     </div>
   );

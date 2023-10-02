@@ -3,6 +3,8 @@ package service;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
+import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3EventNotificationRecord;
+
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
@@ -10,32 +12,52 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.net.HttpURLConnection;
 
 
 public class PDFMergerHandler implements RequestHandler<S3Event, String> {
+	
+	public String handleRequest(S3Event s3Event, Context context) {
+	    context.getLogger().log("Received event: " + s3Event);
 
-    public String handleRequest(S3Event s3Event, Context context) {
-        context.getLogger().log("Received event: " + s3Event);
+	    try {
+	    	List<String> pdfUrls = getPdfUrlsFromS3Event(s3Event);
 
-        try {
-            InputStream pdfStream1 = getPdfStream("https://example.com/path/to/first.pdf");
-            InputStream pdfStream2 = getPdfStream("https://example.com/path/to/second.pdf");
-            
-            PDDocument mergedDocument = mergePdfs(pdfStream1, pdfStream2);
+	        // Load all PDF streams
+	        List<InputStream> pdfStreams = new ArrayList<>();
+	        for (String url : pdfUrls) {
+	            pdfStreams.add(getPdfStream(url));
+	        }
 
-            saveToS3(mergedDocument);
+	        PDDocument mergedDocument = mergePdfs(pdfStreams);
+	        saveToS3(mergedDocument);
+	        mergedDocument.close();
+	        for (InputStream stream : pdfStreams) {
+	            stream.close();
+	        }
 
-            // Cleanup
-            mergedDocument.close();
-            pdfStream1.close();
-            pdfStream2.close();
-
-            return "Successfully merged PDFs!";
-        } catch (Exception e) {
-            throw new RuntimeException("Error merging PDFs", e);
-        }
-    }
+	        return "Successfully merged PDFs!";
+	    } catch (Exception e) {
+	        throw new RuntimeException("Error merging PDFs", e);
+	    }
+	}
+	
+	List<String> getPdfUrlsFromS3Event(S3Event s3Event) {
+	    List<String> pdfUrls = new ArrayList<>();
+	    
+	    for (S3EventNotificationRecord record : s3Event.getRecords()) {
+	        String bucketName = record.getS3().getBucket().getName();
+	        String objectKey = record.getS3().getObject().getKey();
+	        
+	        String url = "https://s3.amazonaws.com/" + bucketName + "/" + objectKey;
+	        pdfUrls.add(url);
+	    }
+	    
+	    return pdfUrls;
+	}
 
     private InputStream getPdfStream(String urlString) throws IOException {
         URL url = new URL(urlString);
@@ -43,16 +65,17 @@ public class PDFMergerHandler implements RequestHandler<S3Event, String> {
         return connection.getInputStream();
     }
 
-    PDDocument mergePdfs(InputStream pdfStream1, InputStream pdfStream2) throws IOException {
-        PDDocument doc1 = PDDocument.load(pdfStream1);
-        PDDocument doc2 = PDDocument.load(pdfStream2);
-
+    PDDocument mergePdfs(List<InputStream> pdfStreams) throws IOException {
         PDFMergerUtility pdfMergerUtility = new PDFMergerUtility();
-        pdfMergerUtility.appendDocument(doc1, doc2);
 
-        doc2.close();
+        PDDocument firstDoc = PDDocument.load(pdfStreams.get(0));
+        for (int i = 1; i < pdfStreams.size(); i++) {
+            PDDocument nextDoc = PDDocument.load(pdfStreams.get(i));
+            pdfMergerUtility.appendDocument(firstDoc, nextDoc);
+            nextDoc.close();
+        }
 
-        return doc1;  // merged document
+        return firstDoc; 
     }
 
     private void saveToS3(PDDocument document) throws IOException {
