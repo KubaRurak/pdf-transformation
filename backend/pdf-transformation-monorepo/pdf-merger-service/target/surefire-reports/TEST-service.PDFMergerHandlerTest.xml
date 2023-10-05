@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="service.PDFMergerHandlerTest" time="2.962" tests="2" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="service.PDFMergerHandlerTest" time="5.145" tests="2" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="19"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -15,7 +15,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="PL"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-19\bin"/>
-    <property name="sun.java.command" value="C:\Users\lamzz\AppData\Local\Temp\surefire4227716722644998586\surefirebooter4278001431241325747.jar C:\Users\lamzz\AppData\Local\Temp\surefire4227716722644998586 2023-10-04T14-20-08_459-jvmRun1 surefire143375533914553473tmp surefire_011726025541627550590tmp"/>
+    <property name="sun.java.command" value="C:\Users\lamzz\AppData\Local\Temp\surefire12567748787167497390\surefirebooter16063966706844139601.jar C:\Users\lamzz\AppData\Local\Temp\surefire12567748787167497390 2023-10-05T15-29-57_252-jvmRun1 surefire7478150204566984982tmp surefire_08257621122477988453tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="C:\pdf-transformation\backend\pdf-transformation-monorepo\pdf-merger-service\target\test-classes;C:\pdf-transformation\backend\pdf-transformation-monorepo\pdf-merger-service\target\classes;C:\Users\lamzz\.m2\repository\org\apache\pdfbox\pdfbox\2.0.24\pdfbox-2.0.24.jar;C:\Users\lamzz\.m2\repository\org\apache\pdfbox\fontbox\2.0.24\fontbox-2.0.24.jar;C:\Users\lamzz\.m2\repository\commons-logging\commons-logging\1.2\commons-logging-1.2.jar;C:\Users\lamzz\.m2\repository\com\amazonaws\aws-lambda-java-core\1.2.3\aws-lambda-java-core-1.2.3.jar;C:\Users\lamzz\.m2\repository\com\amazonaws\aws-java-sdk-s3\1.12.558\aws-java-sdk-s3-1.12.558.jar;C:\Users\lamzz\.m2\repository\com\amazonaws\aws-java-sdk-kms\1.12.558\aws-java-sdk-kms-1.12.558.jar;C:\Users\lamzz\.m2\repository\com\amazonaws\aws-java-sdk-core\1.12.558\aws-java-sdk-core-1.12.558.jar;C:\Users\lamzz\.m2\repository\commons-codec\commons-codec\1.15\commons-codec-1.15.jar;C:\Users\lamzz\.m2\repository\org\apache\httpcomponents\httpclient\4.5.13\httpclient-4.5.13.jar;C:\Users\lamzz\.m2\repository\org\apache\httpcomponents\httpcore\4.4.13\httpcore-4.4.13.jar;C:\Users\lamzz\.m2\repository\software\amazon\ion\ion-java\1.0.2\ion-java-1.0.2.jar;C:\Users\lamzz\.m2\repository\com\fasterxml\jackson\core\jackson-databind\2.12.7.1\jackson-databind-2.12.7.1.jar;C:\Users\lamzz\.m2\repository\com\fasterxml\jackson\core\jackson-annotations\2.12.7\jackson-annotations-2.12.7.jar;C:\Users\lamzz\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.12.7\jackson-core-2.12.7.jar;C:\Users\lamzz\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-cbor\2.12.6\jackson-dataformat-cbor-2.12.6.jar;C:\Users\lamzz\.m2\repository\com\amazonaws\jmespath-java\1.12.558\jmespath-java-1.12.558.jar;C:\Users\lamzz\.m2\repository\com\amazonaws\aws-lambda-java-events\3.10.0\aws-lambda-java-events-3.10.0.jar;C:\Users\lamzz\.m2\repository\joda-time\joda-time\2.6\joda-time-2.6.jar;C:\Users\lamzz\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.10.0\junit-jupiter-api-5.10.0.jar;C:\Users\lamzz\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\lamzz\.m2\repository\org\junit\platform\junit-platform-commons\1.10.0\junit-platform-commons-1.10.0.jar;C:\Users\lamzz\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\lamzz\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.10.0\junit-jupiter-engine-5.10.0.jar;C:\Users\lamzz\.m2\repository\org\junit\platform\junit-platform-engine\1.10.0\junit-platform-engine-1.10.0.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -31,7 +31,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\lamzz\AppData\Local\Temp\surefire4227716722644998586\surefirebooter4278001431241325747.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\lamzz\AppData\Local\Temp\surefire12567748787167497390\surefirebooter16063966706844139601.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="19+36-2238"/>
@@ -59,6 +59,6 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="63.0"/>
   </properties>
-  <testcase name="testMergePdfs" classname="service.PDFMergerHandlerTest" time="1.985"/>
-  <testcase name="testMergeThreePdfs" classname="service.PDFMergerHandlerTest" time="0.935"/>
+  <testcase name="testMergePdfs" classname="service.PDFMergerHandlerTest" time="4.067"/>
+  <testcase name="testMergeThreePdfs" classname="service.PDFMergerHandlerTest" time="1.035"/>
 </testsuite>

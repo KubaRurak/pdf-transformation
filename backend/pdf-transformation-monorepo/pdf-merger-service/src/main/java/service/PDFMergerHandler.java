@@ -27,25 +27,27 @@ public class PDFMergerHandler implements RequestHandler<S3Event, String> {
     private static final String DESTINATION_BUCKET_NAME = "pdftransform-output-pdfs";
     private static final Regions AWS_REGION = Regions.EU_CENTRAL_1;
     private static final int URLExpirationTimeInSeconds = 60;
+    
+    private final AmazonS3 s3Client;
+    
+    public PDFMergerHandler() {
+        this.s3Client = AmazonS3Client.builder().withRegion(AWS_REGION).build();
+    }
 	
     public String handleRequest(S3Event s3Event, Context context) {
         context.getLogger().log("Received event: " + s3Event);
         List<InputStream> pdfStreams = new ArrayList<>();
+        List<String[]> s3Infos = new ArrayList<>();
 
         try {
             context.getLogger().log("Extracting S3 info from event.");
-            List<String[]> s3Infos = getS3InfosFromEvent(s3Event);
+            s3Infos = getS3InfosFromEvent(s3Event);
             for (String[] info : s3Infos) {
                 String bucket = info[0];
                 String key = info[1];
-                try {
-                    context.getLogger().log("Fetching PDF stream for bucket: " + bucket + ", key: " + key);
-                    pdfStreams.add(getPdfStream(bucket, key));
-                    context.getLogger().log("Successfully loaded PDF from bucket: " + bucket + " and key: " + key);
-                } catch (Exception e) {
-                    context.getLogger().log("Failed to load PDF from bucket: " + bucket + " and key: " + key);
-                    throw e;
-                }
+                context.getLogger().log("Fetching PDF stream for bucket: " + bucket + ", key: " + key);
+                pdfStreams.add(getPdfStream(bucket, key));
+                context.getLogger().log("Successfully loaded PDF from bucket: " + bucket + " and key: " + key);
             }
             context.getLogger().log("Merging PDFs.");
             PDDocument mergedDocument = mergePdfs(pdfStreams);
@@ -53,6 +55,7 @@ public class PDFMergerHandler implements RequestHandler<S3Event, String> {
             String objectKey = saveToS3(mergedDocument);
             mergedDocument.close();
             String presignedUrl = generatePresignedUrl(DESTINATION_BUCKET_NAME, objectKey, URLExpirationTimeInSeconds);
+            context.getLogger().log("Log - presigned url address: " + presignedUrl);
             return "Your merged PDF is available here: " + presignedUrl;
         } catch (Exception e) {
             throw new RuntimeException("Error merging PDFs", e);
@@ -65,6 +68,11 @@ public class PDFMergerHandler implements RequestHandler<S3Event, String> {
                     context.getLogger().log("Error closing stream: " + e.getMessage());
                 }
             });
+            // Delete source files irrespective of the success or failure of merging
+            for (String[] info : s3Infos) {
+                context.getLogger().log("Deleting source files");
+                deleteSourceFile(info[0], info[1]);
+            }
         }
     }
     
@@ -84,23 +92,13 @@ public class PDFMergerHandler implements RequestHandler<S3Event, String> {
 
         return s3Infos;
     }
-	
-	List<String> getPdfUrlsFromS3Event(S3Event s3Event) {
-		
-	    List<String> pdfUrls = new ArrayList<>();
-	    for (S3EventNotificationRecord record : s3Event.getRecords()) {
-	        String bucketName = record.getS3().getBucket().getName();
-	        String objectKey = record.getS3().getObject().getKey();
-	        String url = "https://s3.amazonaws.com/" + bucketName + "/" + objectKey;
-	        pdfUrls.add(url);
-	    }
-	    
-	    return pdfUrls;
-	}
 
     private InputStream getPdfStream(String bucketName, String objectKey) {
-        AmazonS3 s3 = AmazonS3Client.builder().withRegion(AWS_REGION).build();
-        return s3.getObject(bucketName, objectKey).getObjectContent();
+        return s3Client.getObject(bucketName, objectKey).getObjectContent();
+    }
+    
+    private void deleteSourceFile(String bucketName, String objectKey) {
+        s3Client.deleteObject(bucketName, objectKey);
     }
 
     PDDocument mergePdfs(List<InputStream> pdfStreams) throws IOException {
@@ -116,20 +114,17 @@ public class PDFMergerHandler implements RequestHandler<S3Event, String> {
     }
 
     private String saveToS3(PDDocument document) throws IOException {
-        AmazonS3 s3 = AmazonS3Client.builder().withRegion(AWS_REGION).build();
         String tempFilePath = "/tmp/merged_" + System.currentTimeMillis() + ".pdf";
         File tempFile = new File(tempFilePath);
         String objectKey = "merged_" + System.currentTimeMillis() + ".pdf";
         document.save(tempFile);
-        s3.putObject(DESTINATION_BUCKET_NAME, objectKey, tempFile);
+        s3Client.putObject(DESTINATION_BUCKET_NAME, objectKey, tempFile);
         tempFile.delete();
         
         return objectKey; // return object key for use in generating pre-signed URL
     }
     
-    private String generatePresignedUrl(String bucketName, String objectKey, int expirationTimeInSeconds) {
-        AmazonS3 s3 = AmazonS3Client.builder().withRegion(AWS_REGION).build();
-        
+    private String generatePresignedUrl(String bucketName, String objectKey, int expirationTimeInSeconds) {        
         java.util.Date expiration = new java.util.Date();
         long expTimeMillis = expiration.getTime();
         expTimeMillis += 1000 * expirationTimeInSeconds;
@@ -140,7 +135,7 @@ public class PDFMergerHandler implements RequestHandler<S3Event, String> {
                 .withMethod(HttpMethod.GET)
                 .withExpiration(expiration);
         
-        URL url = s3.generatePresignedUrl(generatePresignedUrlRequest);
+        URL url = s3Client.generatePresignedUrl(generatePresignedUrlRequest);
         return url.toString();
     }
 }
