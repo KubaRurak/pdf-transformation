@@ -1,20 +1,15 @@
 import React from 'react';
-import FileUploader from './components/FileUploader';
-import './App.css';
+import { ThemeProvider } from '@mui/material/styles';
+import PdfTransformationApp from './components/PdfTransformationApp';
+import theme from './themes/theme';
 
 function App() {
-
-  const handleFilesSelected = (files) => {
-    console.log(files);
-};
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>PDF Merger</h1>
-        <FileUploader onFilesSelected={handleFilesSelected} />
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <div className="App">
+        <PdfTransformationApp />
+      </div>
+    </ThemeProvider>
   );
 }
 
