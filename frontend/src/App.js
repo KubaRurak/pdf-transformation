@@ -1,32 +1,14 @@
 import React from 'react';
-import { Header } from './components/Header';
-import Album from './components/Album';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { CssBaseline } from '@mui/material';
-
-const theme = createTheme({
-  components: {
-    MuiCssBaseline: {
-      styleOverrides: {
-        body: {
-          backgroundImage: 'linear-gradient(90deg, #fdfdfd, #f0f0f0)',
-        },
-      },
-    },
-  },
-});
+import { ThemeProvider } from '@mui/material/styles';
+import PdfTransformationApp from './components/PdfTransformationApp';
+import theme from './themes/theme';
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <div className="App">
-          <Header />
-          <Album />
-        </div>
-      </Router>
+      <div className="App">
+        <PdfTransformationApp />
+      </div>
     </ThemeProvider>
   );
 }
