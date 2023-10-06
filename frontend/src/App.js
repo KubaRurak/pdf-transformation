@@ -1,20 +1,33 @@
 import React from 'react';
-import FileUploader from './components/FileUploader';
-import './App.css';
+import { Header } from './components/Header';
+import Album from './components/Album';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
+
+const theme = createTheme({
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          backgroundImage: 'linear-gradient(90deg, #fdfdfd, #f0f0f0)',
+        },
+      },
+    },
+  },
+});
 
 function App() {
-
-  const handleFilesSelected = (files) => {
-    console.log(files);
-};
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>PDF Merger</h1>
-        <FileUploader onFilesSelected={handleFilesSelected} />
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <div className="App">
+          <Header />
+          <Album />
+        </div>
+      </Router>
+    </ThemeProvider>
   );
 }
 
