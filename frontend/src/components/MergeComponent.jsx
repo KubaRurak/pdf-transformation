@@ -9,13 +9,17 @@ import { DragDropContext, Draggable } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from './StrictModeDroppable';
 
 function MergeComponent() {
-    const [fileNames, setFileNames] = useState([]);
+    const [fileData, setFileData] = useState([]);
     const [dragging, setDragging] = useState(false);
     const dragCounter = useRef(0);
 
     const handleUpload = (files) => {
-        const newNames = [...files].map(file => file.name);
-        setFileNames(prevNames => [...prevNames, ...newNames]);
+        const newFiles = [...files].map(file => ({
+            id: `${file.name}-${Date.now()}`,  // unique id based on name and timestamp
+            name: file.name,
+            url: URL.createObjectURL(file)
+        }));
+        setFileData(prevData => [...prevData, ...newFiles]);
     };
 
     const handleDrop = (event) => {
@@ -54,12 +58,12 @@ function MergeComponent() {
 
     const handleDragEnd = (result) => {
         if (!result.destination) return;  // Dropped outside the list
-
-        const reorderedFileNames = Array.from(fileNames);
-        const [reorderedItem] = reorderedFileNames.splice(result.source.index, 1);
-        reorderedFileNames.splice(result.destination.index, 0, reorderedItem);
-
-        setFileNames(reorderedFileNames);
+    
+        const reorderedFileData = Array.from(fileData);
+        const [reorderedItem] = reorderedFileData.splice(result.source.index, 1);
+        reorderedFileData.splice(result.destination.index, 0, reorderedItem);
+    
+        setFileData(reorderedFileData);
     };
 
     return (
@@ -89,24 +93,25 @@ function MergeComponent() {
                             <Typography variant="h6" color="rgba(255, 255, 255, 0.8)">Drop Files</Typography>
                         </Box>
                     )}
-                    <Container maxWidth="sm">
+                    <Container maxWidth="md">
                         <DragDropContext onDragEnd={handleDragEnd}>
                             <StrictModeDroppable droppableId="fileNames" direction="horizontal">
                                 {(provided) => (
                                     <Grid container spacing={2} ref={provided.innerRef} {...provided.droppableProps}>
-                                        {fileNames.map((name, index) => (
-                                            <Draggable key={name} draggableId={name} index={index}>
+                                        {fileData.map((file, index) => (
+                                            <Draggable key={file.id} draggableId={file.id} index={index}>
                                                 {(provided, snapshot) => (
                                                     <Grid
                                                         item ref={provided.innerRef}
                                                         {...provided.draggableProps}
                                                         {...provided.dragHandleProps}
-                                                        xs={12} sm={6} md={2.4}>
+                                                        xs={12} sm={4} md={2.4}>
                                                         <FileCard
-                                                            fileName={name}
+                                                            fileName={file.name}
+                                                            fileURL={file.url}
                                                             isDragging={snapshot.isDragging}
                                                             onDelete={(nameToDelete) => {
-                                                                setFileNames(prevNames => prevNames.filter(n => n !== nameToDelete));
+                                                                setFileData(prevNames => prevNames.filter(f => f.name !== nameToDelete));
                                                             }}
                                                         />
                                                     </Grid>
@@ -131,7 +136,7 @@ function MergeComponent() {
                             <Typography variant="h5" align="center" color="text.secondary" paragraph>
                                 Combine PDFs in whatever order you want
                             </Typography>
-                            <PdfUpload onUpload={handleUpload} uploadedFiles={fileNames} />
+                            <PdfUpload onUpload={handleUpload} uploadedFiles={fileData} />
                         </Box>
                     </Container>
                 </Box>

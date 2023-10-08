@@ -22,9 +22,9 @@ function PdfUpload({ onUpload, uploadedFiles }) {
                     onChange={handleFiles}
                 />
             </Button>
-            {uploadedFiles.map((name, index) => (
+            {uploadedFiles.map((file, index) => (
                 <Typography key={index} sx={{ mb: 1 }}>
-                    {name}
+                    {file.name}
                 </Typography>
             ))}
         </div>
