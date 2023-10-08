@@ -30,7 +30,7 @@ function HeaderComponent() {
                     <Link href="/merge-pdfs" color="inherit" sx={linkStyle}>Merge</Link>
                     <Link href="/split-pdfs" color="inherit" sx={linkStyle}>Split</Link>
 
-                    <Box sx={{ flexGrow: 1 }} /> {/* To push "Sign Up" and "Sign In" to the right */}
+                    <Box sx={{ flexGrow: 1 }} />
                     
                     {isAuthenticated ? (
                         <Link href="/logout" color="inherit" sx={{ ...linkStyle, mr: 0 }}>Sign Out</Link>
