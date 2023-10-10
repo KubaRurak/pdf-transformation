@@ -58,91 +58,96 @@ function MergeComponent() {
 
     const handleDragEnd = (result) => {
         if (!result.destination) return;  // Dropped outside the list
-    
+
         const reorderedFileData = Array.from(fileData);
         const [reorderedItem] = reorderedFileData.splice(result.source.index, 1);
         reorderedFileData.splice(result.destination.index, 0, reorderedItem);
-    
+
         setFileData(reorderedFileData);
     };
 
-    return (
-        <>
-            <main
-                onDrop={handleDrop}
-                onDragOver={(e) => e.preventDefault()}
-                onDragEnter={handleDragEnter}
-                onDragLeave={handleDragLeave}
-                style={{ position: 'relative' }}
-            >
-                <Box
-                    sx={{
-                        pt: 8,
-                        pb: 0,
-                    }}
-                >
-                    {dragging && (
-                        <Box
-                            sx={{
-                                position: 'absolute',
-                                top: 0, left: 0, right: 0, bottom: 0,
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)', zIndex: 2
-                            }}
-                        >
-                            <Typography variant="h6" color="rgba(255, 255, 255, 0.8)">Drop Files</Typography>
-                        </Box>
-                    )}
-                    <Container maxWidth="md">
-                        <DragDropContext onDragEnd={handleDragEnd}>
-                            <StrictModeDroppable droppableId="fileNames" direction="horizontal">
-                                {(provided) => (
-                                    <Grid container spacing={2} ref={provided.innerRef} {...provided.droppableProps}>
-                                        {fileData.map((file, index) => (
-                                            <Draggable key={file.id} draggableId={file.id} index={index}>
-                                                {(provided, snapshot) => (
-                                                    <Grid
-                                                        item ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        xs={12} sm={4} md={2.4}>
-                                                        <FileCard
-                                                            fileName={file.name}
-                                                            fileURL={file.url}
-                                                            isDragging={snapshot.isDragging}
-                                                            onDelete={(nameToDelete) => {
-                                                                setFileData(prevNames => prevNames.filter(f => f.name !== nameToDelete));
-                                                            }}
-                                                        />
-                                                    </Grid>
-                                                )}
-                                            </Draggable>
-                                        ))}
-                                        {provided.placeholder}
+    
+
+    const renderGrid = () => (
+        <DragDropContext onDragEnd={handleDragEnd}>
+            <StrictModeDroppable droppableId="fileNames" direction="horizontal">
+                {(provided) => (
+                    <Grid container spacing={2} ref={provided.innerRef} {...provided.droppableProps}>
+                        {fileData.map((file, index) => (
+                            <Draggable key={file.id} draggableId={file.id} index={index}>
+                                {(provided, snapshot) => (
+                                    <Grid item xs={6} sm={4} md={3} lg={2.4}
+                                          ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          {...provided.dragHandleProps}
+                                          >
+                                        <FileCard
+                                            fileName={file.name}
+                                            fileURL={file.url}
+                                            isDragging={snapshot.isDragging}
+                                            onDelete={(nameToDelete) => {
+                                                setFileData(prevNames => prevNames.filter(f => f.name !== nameToDelete));
+                                            }}
+                                        />
                                     </Grid>
                                 )}
-                            </StrictModeDroppable>
-                        </DragDropContext>
-                        <Box sx={{ pt: 8, pb: 0 }}>
-                            <Typography
-                                component="h1"
-                                variant="h2"
-                                align="center"
-                                color="text.primary"
-                                gutterBottom
-                            >
-                                Merge PDFs
-                            </Typography>
-                            <Typography variant="h5" align="center" color="text.secondary" paragraph>
-                                Combine PDFs in whatever order you want
-                            </Typography>
-                            <PdfUpload onUpload={handleUpload} uploadedFiles={fileData} />
-                        </Box>
-                    </Container>
-                </Box>
-            </main>
-        </>
+                            </Draggable>
+                        ))}
+                        {provided.placeholder}
+                    </Grid>
+                )}
+            </StrictModeDroppable>
+        </DragDropContext>
+    );
+
+    return (
+        <main
+            onDrop={handleDrop}
+            onDragOver={(e) => e.preventDefault()}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            style={{ position: 'relative' }}
+        >
+            <Box sx={{ pt: 8, pb: 0 }}>
+                {dragging && <OverlayComponent />}
+                <Container maxWidth="md">
+                    {renderGrid()}
+                    <DescriptionComponent />
+                    <PdfUpload onUpload={handleUpload} uploadedFiles={fileData} />
+                </Container>
+            </Box>
+        </main>
     );
 }
+
+const OverlayComponent = () => (
+    <Box
+        sx={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.8)', zIndex: 2
+        }}
+    >
+        <Typography variant="h6" color="rgba(255, 255, 255, 0.8)">Drop Files</Typography>
+    </Box>
+);
+
+const DescriptionComponent = () => (
+    <Box sx={{ pt: 8, pb: 0 }}>
+        <Typography
+            component="h1"
+            variant="h2"
+            align="center"
+            color="text.primary"
+            gutterBottom
+        >
+            Merge PDFs
+        </Typography>
+        <Typography variant="h5" align="center" color="text.secondary" paragraph>
+            Combine PDFs in whatever order you want
+        </Typography>
+    </Box>
+);
 
 export default MergeComponent;
