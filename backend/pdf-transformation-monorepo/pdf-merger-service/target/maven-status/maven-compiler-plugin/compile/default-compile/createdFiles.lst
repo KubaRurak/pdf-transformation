@@ -1,3 +1,5 @@
+com\jakubrurak\presignedurl\ApiGatewayInput.class
+com\jakubrurak\presignedurl\ApiGatewayResponse.class
 com\jakubrurak\pdfoperations\merge\PDFMergerHandler.class
 com\jakubrurak\orchestration\OrchestratorHandler.class
 com\jakubrurak\polling\PollingHandler.class
