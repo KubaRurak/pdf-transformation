@@ -12,6 +12,8 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jakubrurak.apigateway.ApiGatewayInput;
+import com.jakubrurak.apigateway.ApiGatewayResponse;
 
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -45,7 +47,7 @@ public class PresignedUrlGeneratorHandler implements RequestHandler<ApiGatewayIn
             List<String> presignedUrls = new ArrayList<>();
             String batchUUID = UUID.randomUUID().toString();
             for (int i = 0; i < numberOfUrls; i++) {
-                String objectKey = "uploads/" + batchUUID + "/upload_" + System.currentTimeMillis() + "_" + i + ".pdf";
+                String objectKey = "uploads/" + batchUUID + "/upload_" + i + ".pdf";
                 String presignedUrl = generatePresignedUrl(UPLOAD_BUCKET_NAME, objectKey, URL_EXPIRATION_TIME_IN_SECONDS);
                 presignedUrls.add(presignedUrl);
             }
@@ -59,6 +61,7 @@ public class PresignedUrlGeneratorHandler implements RequestHandler<ApiGatewayIn
             response.setStatusCode(200);
             Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("presignedUrls", presignedUrls);
+            responseBody.put("uuid", batchUUID);
             response.setBody(new ObjectMapper().writeValueAsString(responseBody));
             return response;
         } catch (Exception e) {

@@ -14,6 +14,7 @@ function MergeComponent() {
     const [fileData, setFileData] = useState([]);
     const [dragging, setDragging] = useState(false);
     const [presignedUrls, setPresignedUrls] = useState([]);
+    // const [UUID, setUUID] = useState(0);
     const dragCounter = useRef(0);
 
     const handleUpload = (files) => {
@@ -60,26 +61,110 @@ function MergeComponent() {
     };
 
     const fetchPresignedUrls = async () => {
-        console.log(fileData.length);
         try {
             const response = await fetch("https://l91xlk3wo2.execute-api.eu-central-1.amazonaws.com/presignedurl", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ numberOfUrls: fileData.length })  // request as many URLs as there are files
+                body: JSON.stringify({ numberOfUrls: fileData.length })  
             });
-
+    
             const data = await response.json();
-
+    
             if (data && data.presignedUrls && data.presignedUrls.length) {
-                setPresignedUrls(data.presignedUrls);
+                return { presignedUrls: data.presignedUrls, uuid: data.uuid };
+            } else {
+                throw new Error("Invalid response format or no pre-signed URLs found");
             }
-            console.log(presignedUrls);
         } catch (error) {
             console.error("Failed to fetch presigned URLs", error);
+            return {}; // Return an empty object in case of an error
         }
     };
+
+    const uploadToPresignedUrl = async (file, presignedUrl) => {
+        try {
+            const uploadResponse = await fetch(presignedUrl, {
+                method: 'PUT',
+                body: file,
+                headers: {
+                    'Content-Type': 'application/pdf' // Since you are uploading PDFs
+                }
+            });
+            
+            if (!uploadResponse.ok) {
+                throw new Error(`Failed to upload ${file.name}. Status: ${uploadResponse.status}`);
+            }
+    
+            console.log(`Successfully uploaded ${file.name}`);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    
+    const uploadFiles = async (presignedUrls) => {
+        for (let i = 0; i < fileData.length; i++) {
+            const fileBlob = await fetch(fileData[i].url).then(r => r.blob());
+            const presignedUrl = presignedUrls[i];
+            await uploadToPresignedUrl(fileBlob, presignedUrl);
+        }
+    };
+
+    const startOrchestration = async (uuid, action, numberOfFiles) => {
+        try {
+            const response = await fetch("https://l91xlk3wo2.execute-api.eu-central-1.amazonaws.com/tasks/start-orchestration", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    uuid: uuid,
+                    action: action,
+                    numberOfFiles: numberOfFiles
+                })  
+            });
+            
+            // if (!response.ok) {
+            //     throw new Error(`Failed to start orchestration. Status: ${response.status}`);
+            // }
+    
+            const responseData = await response.json();
+            console.log(`Orchestration result: `, responseData);
+    
+            return responseData;
+    
+        } catch (error) {
+            console.error("Failed to start the orchestration", error);
+            return null; // or some error handling value
+        }
+    };
+    
+    const handleUploadButtonClick = async () => {
+        const { presignedUrls, uuid } = await fetchPresignedUrls();
+        if (presignedUrls && presignedUrls.length) {
+            setPresignedUrls(presignedUrls); // Save the fetched URLs to the state
+            await uploadFiles(presignedUrls);
+    
+            const orchestrationResult = await startOrchestration(uuid, "merge", fileData.length);
+            if (orchestrationResult) {
+                const downloadLink = orchestrationResult; // Assuming orchestrationResult is the direct URL
+    
+                // Update the state or display a message to the user with the download link
+                alert(`Merging successful! Your merged PDF is available here: ${downloadLink}`);
+    
+                // Optionally, you can automatically start the download or redirect the user
+                window.open(downloadLink, '_blank');  // Open in a new tab
+            } else {
+                alert('There was an error during the orchestration. Please try again.');
+            }
+    
+        } else {
+            console.warn("No pre-signed URLs fetched. Skipping file upload.");
+        }
+    };
+
+    
 
     const handleDragEnd = (result) => {
         if (!result.destination) return;  // Dropped outside the list
@@ -139,7 +224,7 @@ function MergeComponent() {
                     {renderGrid()}
                     <DescriptionComponent />
                     <PdfUpload onUpload={handleUpload} uploadedFiles={fileData} presignedUrls={presignedUrls} />
-                    <Button variant="contained" onClick={fetchPresignedUrls} sx={{ mt: 2, mb: 2, width: '100%' }}>
+                    <Button variant="contained" onClick={handleUploadButtonClick} sx={{ mt: 2, mb: 2, width: '100%' }}>
                         Get Presigned URLs
                     </Button>
                 </Container>

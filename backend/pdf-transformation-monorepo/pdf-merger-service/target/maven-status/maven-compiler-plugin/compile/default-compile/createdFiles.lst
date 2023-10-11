@@ -1,6 +1,7 @@
-com\jakubrurak\presignedurl\ApiGatewayInput.class
-com\jakubrurak\presignedurl\ApiGatewayResponse.class
-com\jakubrurak\pdfoperations\merge\PDFMergerHandler.class
 com\jakubrurak\orchestration\OrchestratorHandler.class
-com\jakubrurak\polling\PollingHandler.class
 com\jakubrurak\presignedurl\PresignedUrlGeneratorHandler.class
+com\jakubrurak\pdfoperations\merge\PDFMergerHandler.class
+com\jakubrurak\polling\PollingHandler.class
+com\jakubrurak\validation\ValidatorHandler.class
+com\jakubrurak\apigateway\ApiGatewayInput.class
+com\jakubrurak\apigateway\ApiGatewayResponse.class

@@ -32,9 +32,10 @@ import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignReques
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 
-public class PDFMergerHandler implements RequestHandler<S3Event, String> {
+public class PDFMergerHandler implements RequestHandler<Map<String, Object>, String> {
 	
-    private static final String DESTINATION_BUCKET_NAME = "pdftransform-output-pdfs";
+    private static final String SOURCE_BUCKET_NAME = "pdftransform-source-pdfs";
+	private static final String DESTINATION_BUCKET_NAME = "pdftransform-output-pdfs";
     private static final Region AWS_REGION = Region.EU_CENTRAL_1;
     private final S3Client s3Client;
     private final DynamoDbClient dynamoDBClient;
@@ -50,14 +51,14 @@ public class PDFMergerHandler implements RequestHandler<S3Event, String> {
         this.dynamoDBClient = dynamoDbClient;
     }
 	
-    public String handleRequest(S3Event s3Event, Context context) {
-        context.getLogger().log("Received event: " + s3Event);
+    public String handleRequest(Map<String, Object> input, Context context) {
+        context.getLogger().log("Extracting S3 info from input.");    	
         List<InputStream> pdfStreams = new ArrayList<>();
         List<String[]> s3Infos = new ArrayList<>();
 
         try {
             context.getLogger().log("Extracting S3 info from event.");
-            s3Infos = getS3InfosFromEvent(s3Event);
+            s3Infos = getS3InfosFromInput(input);
             for (String[] info : s3Infos) {
                 String bucket = info[0];
                 String key = info[1];
@@ -95,20 +96,13 @@ public class PDFMergerHandler implements RequestHandler<S3Event, String> {
         }
     }
     
-    List<String[]> getS3InfosFromEvent(S3Event s3Event) {
+    List<String[]> getS3InfosFromInput(Map<String, Object> input) {
         List<String[]> s3Infos = new ArrayList<>();
-        for (S3EventNotificationRecord record : s3Event.getRecords()) {
-            String bucketName = record.getS3().getBucket().getName();
-            String objectKey;
-            try {
-                objectKey = java.net.URLDecoder.decode(record.getS3().getObject().getKey(), StandardCharsets.UTF_8.name());
-                
-            } catch (IOException e) {
-                throw new RuntimeException("Error decoding object key", e);
-            }
-            s3Infos.add(new String[]{bucketName, objectKey});
+        List<String> s3Keys = (List<String>) input.get("s3Keys");
+        
+        for (String key : s3Keys) {
+            s3Infos.add(new String[]{SOURCE_BUCKET_NAME, key});
         }
-
         return s3Infos;
     }
 
