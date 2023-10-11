@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
-function PdfUpload({ onUpload, uploadedFiles }) {
+function PdfUpload({ onUpload, uploadedFiles, presignedUrls }) {
 
     const handleFiles = (event) => {
         if (event.target.files.length > 0) {
@@ -25,6 +25,11 @@ function PdfUpload({ onUpload, uploadedFiles }) {
             {uploadedFiles.map((file, index) => (
                 <Typography key={index} sx={{ mb: 1 }}>
                     {file.name}
+                </Typography>
+            ))}
+            {presignedUrls.map((url, index) => (
+                <Typography key={index} sx={{ mb: 1, color: 'blue' }}>
+                    {url}
                 </Typography>
             ))}
         </div>

@@ -7,10 +7,13 @@ import Grid from '@mui/material/Grid'; // <-- Import the Grid component
 import FileCard from './FileCard';
 import { DragDropContext, Draggable } from 'react-beautiful-dnd';
 import { StrictModeDroppable } from './StrictModeDroppable';
+import Button from '@mui/material/Button';
+
 
 function MergeComponent() {
     const [fileData, setFileData] = useState([]);
     const [dragging, setDragging] = useState(false);
+    const [presignedUrls, setPresignedUrls] = useState([]);
     const dragCounter = useRef(0);
 
     const handleUpload = (files) => {
@@ -56,6 +59,28 @@ function MergeComponent() {
         }
     };
 
+    const fetchPresignedUrls = async () => {
+        console.log(fileData.length);
+        try {
+            const response = await fetch("https://l91xlk3wo2.execute-api.eu-central-1.amazonaws.com/presignedurl", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ numberOfUrls: fileData.length })  // request as many URLs as there are files
+            });
+
+            const data = await response.json();
+
+            if (data && data.presignedUrls && data.presignedUrls.length) {
+                setPresignedUrls(data.presignedUrls);
+            }
+            console.log(presignedUrls);
+        } catch (error) {
+            console.error("Failed to fetch presigned URLs", error);
+        }
+    };
+
     const handleDragEnd = (result) => {
         if (!result.destination) return;  // Dropped outside the list
 
@@ -66,7 +91,7 @@ function MergeComponent() {
         setFileData(reorderedFileData);
     };
 
-    
+
 
     const renderGrid = () => (
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -77,10 +102,10 @@ function MergeComponent() {
                             <Draggable key={file.id} draggableId={file.id} index={index}>
                                 {(provided, snapshot) => (
                                     <Grid item xs={6} sm={4} md={3} lg={2.4}
-                                          ref={provided.innerRef}
-                                          {...provided.draggableProps}
-                                          {...provided.dragHandleProps}
-                                          >
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                    >
                                         <FileCard
                                             fileName={file.name}
                                             fileURL={file.url}
@@ -113,7 +138,10 @@ function MergeComponent() {
                 <Container maxWidth="md">
                     {renderGrid()}
                     <DescriptionComponent />
-                    <PdfUpload onUpload={handleUpload} uploadedFiles={fileData} />
+                    <PdfUpload onUpload={handleUpload} uploadedFiles={fileData} presignedUrls={presignedUrls} />
+                    <Button variant="contained" onClick={fetchPresignedUrls} sx={{ mt: 2, mb: 2, width: '100%' }}>
+                        Get Presigned URLs
+                    </Button>
                 </Container>
             </Box>
         </main>
