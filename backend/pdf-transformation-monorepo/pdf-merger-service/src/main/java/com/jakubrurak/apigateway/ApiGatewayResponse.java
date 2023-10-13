@@ -1,6 +1,5 @@
 package com.jakubrurak.apigateway;
 
-import java.util.List;
 import java.util.Map;
 
 public class ApiGatewayResponse {
