@@ -57,7 +57,6 @@ public class PDFMergerHandler implements RequestHandler<Map<String, Object>, Str
         List<String[]> s3Infos = new ArrayList<>();
 
         try {
-            context.getLogger().log("Extracting S3 info from event.");
             s3Infos = getS3InfosFromInput(input);
             for (String[] info : s3Infos) {
                 String bucket = info[0];
@@ -76,7 +75,7 @@ public class PDFMergerHandler implements RequestHandler<Map<String, Object>, Str
             context.getLogger().log("Saving data to db");
             saveRecordToDynamoDB(objectKey, presignedUrl);
             context.getLogger().log("Db data saved succesfully");
-            return "Your merged PDF is available here: " + presignedUrl;
+            return presignedUrl;
         } catch (Exception e) {
             throw new RuntimeException("Error merging PDFs", e);
         } finally {
@@ -88,11 +87,10 @@ public class PDFMergerHandler implements RequestHandler<Map<String, Object>, Str
                     context.getLogger().log("Error closing stream: " + e.getMessage());
                 }
             });
-            // Delete source files irrespective of the success or failure of merging
-//            for (String[] info : s3Infos) {
-//                context.getLogger().log("Deleting source files");
-//                deleteSourceFile(info[0], info[1]);
-//            }
+            for (String[] info : s3Infos) {
+                context.getLogger().log("Deleting source files");
+                deleteSourceFile(info[0], info[1]);
+            }
         }
     }
     
@@ -169,10 +167,10 @@ public class PDFMergerHandler implements RequestHandler<Map<String, Object>, Str
     }
     
     private void saveRecordToDynamoDB(String objectKey, String presignedUrl) {
-        String tableName = "MergedPDFStatus"; // Change this to your actual table name
+        String tableName = "MergedPDFStatus";
 
         Map<String, AttributeValue> item = new HashMap<>();
-        item.put("id", AttributeValue.builder().s(objectKey).build()); // Using objectKey as the unique ID for simplicity
+        item.put("id", AttributeValue.builder().s(objectKey).build());
         item.put("status", AttributeValue.builder().s("complete").build());
         item.put("url", AttributeValue.builder().s(presignedUrl).build());
 

@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import LoginComponent from './LoginComponent';
-import MergeComponent from './MergeComponent';
+import MergeComponent from './merge/MergeComponent';
 import SplitComponent from './SplitComponent';
 import LogoutComponent from './LogoutComponent';
 import ErrorComponent from './ErrorComponent';
@@ -8,6 +8,7 @@ import HeaderComponent from './HeaderComponent';
 import AuthProvider, { useAuth } from './security/AuthContext'
 import AlbumComponent from './AlbumComponent';
 import FooterComponent from './FooterComponent';
+import './PdfTransformationApp.css'
 
 export default function PdfTransformationApp() {
     return (
@@ -24,7 +25,7 @@ function AppContent() {
     const authContext = useAuth();
 
     return (
-        <>
+        <div className="main-content-wrapper">
             <HeaderComponent/>
             <Routes>
                 <Route path="/" element={<AlbumComponent />} />
@@ -39,7 +40,7 @@ function AppContent() {
                 <Route path="*" element={<ErrorComponent />} />
             </Routes>
             <FooterComponent/>
-        </>
+        </div>
     );
 }
 
