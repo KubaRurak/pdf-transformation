@@ -40,7 +40,7 @@ public class OrchestratorHandler implements RequestHandler<ApiGatewayInput, ApiG
 
             if (uuid == null || uuid.trim().isEmpty()) {
                 response.setBody("Invalid UUID.");
-                response.setStatusCode(400); // Bad Request
+                response.setStatusCode(400);
                 return response;
             }
 
@@ -52,7 +52,7 @@ public class OrchestratorHandler implements RequestHandler<ApiGatewayInput, ApiG
             boolean isValid = invokeValidatorLambda(payloadJson);
             if (!isValid) {
                 response.setBody("Validation failed for provided files.");
-                response.setStatusCode(400); // Bad Request
+                response.setStatusCode(400);
                 return response;
             }
 
@@ -68,10 +68,10 @@ public class OrchestratorHandler implements RequestHandler<ApiGatewayInput, ApiG
             }
 
             response.setBody(result);
-            response.setStatusCode(200); // OK
+            response.setStatusCode(200); 
 
         } catch (Exception e) {
-            response.setStatusCode(500); // Internal Server Error
+            response.setStatusCode(500); 
             response.setBody("{\"message\":\"Error processing request: " + e.getMessage() + "\"}");
             context.getLogger().log("Error: " + e.getMessage());
         }
