@@ -20,7 +20,7 @@ public class PollingHandler implements RequestHandler<APIGatewayProxyRequestEven
     private final DynamoDbClient dynamoDBClient;
 
     public PollingHandler() {
-        this.dynamoDBClient = DynamoDbClient.create(); // This initializes the DynamoDB client for SDK v2.x
+        this.dynamoDBClient = DynamoDbClient.create();
     }
 
     @Override
