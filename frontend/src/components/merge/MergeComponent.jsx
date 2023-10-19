@@ -30,11 +30,9 @@ function MergeComponent() {
 
     const handleDragEnd = (result) => {
         if (!result.destination) return;
-
         const reorderedFileData = Array.from(fileData);
         const [reorderedItem] = reorderedFileData.splice(result.source.index, 1);
         reorderedFileData.splice(result.destination.index, 0, reorderedItem);
-
         setFileData(reorderedFileData);
     };
 
